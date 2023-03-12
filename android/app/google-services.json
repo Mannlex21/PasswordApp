@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1072529196820",
+    "project_id": "passwordmanager-e7116",
+    "storage_bucket": "passwordmanager-e7116.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1072529196820:android:b85a7994bd133081ae6401",
+        "android_client_info": {
+          "package_name": "com.mannlex21.password_manager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1072529196820-q9lhllqsn8clm06aus4f2qqdid7fl1bh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuFta2VMxhFFgyIgBXl2jSSwnx3TziJvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1072529196820-q9lhllqsn8clm06aus4f2qqdid7fl1bh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
