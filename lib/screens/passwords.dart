@@ -1,33 +1,39 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:password_manager/models/password_model.dart';
+import 'package:password_manager/screens/addPassword.dart';
+import 'package:password_manager/widgets/ItemPassword.dart';
 
-class Password extends StatefulWidget {
-  const Password({super.key});
+class PasswordPage extends StatefulWidget {
+  const PasswordPage({super.key});
 
   @override
-  State<Password> createState() => _PasswordState();
+  State<PasswordPage> createState() => _PasswordPageState();
 }
 
-class _PasswordState extends State<Password> {
+class _PasswordPageState extends State<PasswordPage> {
   @override
   @override
   Widget build(BuildContext context) {
-    // var db = FirebaseFirestore.instance;
-    // final docRef = db.collection("password");
-    // docRef.get().then(
-    //       (res) => {
-    //         res.docs.forEach((element) {
-    //           print(element.data());
-    //         })
-    //       },
-    //       onError: (e) => print("Error getting document: $e"),
-    //     );
     return MaterialApp(
       theme:
           ThemeData(brightness: Brightness.dark, primaryColor: Colors.blueGrey),
       home: Scaffold(
         appBar: AppBar(
           title: Text('Password'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddPasswordPage()));
+              },
+            ),
+          ],
         ),
         body: Center(
           child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -39,11 +45,10 @@ class _PasswordState extends State<Password> {
                 return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    print(snapshot.data!.docs[index]);
-                    return ListTile(
-                      title: Text(
-                        snapshot.data!.docs[index].get('name'),
-                      ),
+                    return ItemPassword(
+                      keyItem: snapshot.data!.docs[index].id,
+                      data: PasswordModel.fromJson(
+                          snapshot.data!.docs[index].data()),
                     );
                   },
                 );
