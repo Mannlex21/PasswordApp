@@ -130,12 +130,11 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
                         .toJson();
                     var db = FirebaseFirestore.instance;
                     db.collection("password").add(newRegister).then((value) {
-                      print('New value:' + value.id);
                       Navigator.pop(
                           context,
                           MaterialPageRoute(
                               builder: (context) => const AddPasswordPage()));
-                    }).catchError((error) => {print('Error:' + error)});
+                    }).onError((error, stackTrace) => null);
                   }
                 },
               ),
