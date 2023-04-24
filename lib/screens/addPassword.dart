@@ -1,15 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:password_manager/models/password_model.dart';
+import 'package:password_manager/models/password_item.dart';
+import 'package:password_manager/providers/notifier.dart';
+import 'package:password_manager/screens/passwords.dart';
+import 'package:password_manager/services/database.dart';
+import 'package:provider/provider.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class AddPasswordPage extends StatefulWidget {
-  const AddPasswordPage({super.key});
+  final PasswordItem? data;
+  const AddPasswordPage({super.key, this.data});
 
   @override
   State<AddPasswordPage> createState() => _AddPasswordPageState();
 }
 
 class _AddPasswordPageState extends State<AddPasswordPage> {
+  int? idPasswordItem;
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -18,6 +24,38 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    if (widget.data != null) {
+      final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
+      final iv = encrypt.IV.fromLength(16);
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final decrypted = encrypter
+          .decrypt(encrypt.Encrypted.fromBase64(widget.data!.password), iv: iv);
+      idPasswordItem = widget.data!.id;
+      nameController.value = TextEditingValue(
+        text: widget.data!.name,
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: widget.data!.name.length),
+        ),
+      );
+      passwordController.value = TextEditingValue(
+        text: decrypted,
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: decrypted.length),
+        ),
+      );
+      descriptionController.value = TextEditingValue(
+        text: widget.data!.description,
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: widget.data!.description.length),
+        ),
+      );
+      urlController.value = TextEditingValue(
+        text: widget.data!.url,
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: widget.data!.url.length),
+        ),
+      );
+    }
     bool passwordVisible = false;
     return Scaffold(
       appBar: AppBar(
@@ -121,20 +159,10 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
               child: TextButton(
                 child: const Text('Guardar'),
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    final newRegister = PasswordModel(
-                            nameController.text,
-                            passwordController.text,
-                            descriptionController.text,
-                            urlController.text)
-                        .toJson();
-                    var db = FirebaseFirestore.instance;
-                    db.collection("password").add(newRegister).then((value) {
-                      Navigator.pop(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const AddPasswordPage()));
-                    }).onError((error, stackTrace) => null);
+                  if (idPasswordItem == null) {
+                    addItem();
+                  } else {
+                    editItem();
                   }
                 },
               ),
@@ -143,5 +171,66 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
         ),
       ),
     );
+  }
+
+  void addItem() async {
+    if (_formKey.currentState!.validate()) {
+      final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
+      final iv = encrypt.IV.fromLength(16);
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
+      // final encrypt = Crypt.sha256(passwordController.text);
+      final newRegister = PasswordItem(
+          name: nameController.text,
+          password: encrypted.base64,
+          description: descriptionController.text,
+          url: urlController.text);
+      await PasswordDatabase.instance.insert(newRegister);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Password agregado'),
+        duration: Duration(seconds: 1),
+      ));
+      Future.delayed(const Duration(seconds: 1), () async {
+        Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChangeNotifierProvider(
+                        create: (context) => PasswordNotifier(),
+                        child: const PasswordPage())))
+            .then((value) => setState(() {}));
+      });
+    }
+  }
+
+  void editItem() async {
+    if (_formKey.currentState!.validate()) {
+      final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
+      final iv = encrypt.IV.fromLength(16);
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
+      final editRegister = PasswordItem(
+          id: idPasswordItem,
+          name: nameController.text,
+          password: encrypted.base64,
+          description: descriptionController.text,
+          url: urlController.text);
+      await PasswordDatabase.instance.update(editRegister);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Password editado'),
+        duration: Duration(seconds: 1),
+      ));
+      Future.delayed(const Duration(seconds: 1), () async {
+        Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChangeNotifierProvider(
+                        create: (context) => PasswordNotifier(),
+                        child: const PasswordPage())))
+            .then((value) => setState(() {}));
+      });
+    }
   }
 }

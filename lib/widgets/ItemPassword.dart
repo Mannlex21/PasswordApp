@@ -1,20 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypt/crypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:password_manager/models/password_model.dart';
+import 'package:password_manager/models/password_item.dart';
+import 'package:password_manager/providers/notifier.dart';
+import 'package:password_manager/screens/addPassword.dart';
 import 'package:password_manager/screens/view.dart';
+import 'package:password_manager/services/database.dart';
+import 'package:provider/provider.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class ItemPassword extends StatefulWidget {
-  final PasswordModel data;
-  final String? keyItem;
-  const ItemPassword({super.key, required this.data, required this.keyItem});
+  final PasswordItem data;
+  final int id;
+  const ItemPassword({super.key, required this.data, required this.id});
 
   @override
   State<ItemPassword> createState() => _ItemPasswordState();
 }
 
 class _ItemPasswordState extends State<ItemPassword> {
-  var db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -32,40 +37,58 @@ class _ItemPasswordState extends State<ItemPassword> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.data.name ?? '',
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      widget.data.url ?? '',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.data.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      Text(
+                        widget.data.url,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
                 ),
                 Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.copy, size: 24),
                       onPressed: () async {
-                        await Clipboard.setData(
-                            ClipboardData(text: widget.data.password));
+                        final key = encrypt.Key.fromUtf8(
+                            '%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
+                        final iv = encrypt.IV.fromLength(16);
+                        final encrypter = encrypt.Encrypter(encrypt.AES(key));
+                        final decrypted = encrypter.decrypt(
+                            encrypt.Encrypted.fromBase64(widget.data.password),
+                            iv: iv);
+                        await Clipboard.setData(ClipboardData(text: decrypted));
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 24),
+                      onPressed: () async {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AddPasswordPage(data: widget.data)));
                       },
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, size: 24),
                       onPressed: () async {
-                        db
-                            .collection("password")
-                            .doc(widget.keyItem)
-                            .delete()
-                            .then(
-                              (doc) => print("Document deleted"),
-                              onError: (e) =>
-                                  print("Error updating document $e"),
-                            );
+                        await PasswordDatabase.instance.delete(widget.id);
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Password eliminado')));
+                        Provider.of<PasswordNotifier>(context, listen: false)
+                            .shouldRefresh();
                       },
                     ),
                   ],

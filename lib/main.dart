@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:password_manager/providers/notifier.dart';
 import 'package:password_manager/screens/passwords.dart';
-import 'package:password_manager/screens/view.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   runApp(const MainApp());
 }
 
@@ -20,7 +17,9 @@ class MainApp extends StatelessWidget {
           ThemeData(brightness: Brightness.dark, primaryColor: Colors.blueGrey),
       initialRoute: '/',
       routes: {
-        '/': (context) => const PasswordPage(),
+        '/': (context) => ChangeNotifierProvider(
+            create: (context) => PasswordNotifier(),
+            child: const PasswordPage()),
       },
     );
   }

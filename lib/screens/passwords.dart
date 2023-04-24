@@ -1,10 +1,10 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:password_manager/models/password_model.dart';
+import 'package:password_manager/models/password_item.dart';
+import 'package:password_manager/providers/notifier.dart';
 import 'package:password_manager/screens/addPassword.dart';
+import 'package:password_manager/services/database.dart';
 import 'package:password_manager/widgets/ItemPassword.dart';
+import 'package:provider/provider.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -22,7 +22,7 @@ class _PasswordPageState extends State<PasswordPage> {
           ThemeData(brightness: Brightness.dark, primaryColor: Colors.blueGrey),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Password'),
+          title: const Text('Password'),
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
@@ -36,31 +36,34 @@ class _PasswordPageState extends State<PasswordPage> {
           ],
         ),
         body: Center(
-          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            // inside the <> you enter the type of your stream
-            stream:
-                FirebaseFirestore.instance.collection('password').snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    return ItemPassword(
-                      keyItem: snapshot.data!.docs[index].id,
-                      data: PasswordModel.fromJson(
-                          snapshot.data!.docs[index].data()),
-                    );
-                  },
-                );
-              }
-              if (snapshot.hasError) {
-                return const Text('Error');
-              } else {
-                return const CircularProgressIndicator();
-              }
-            },
-          ),
-        ),
+            child: Consumer<PasswordNotifier>(builder: (context, cart, child) {
+          return FutureBuilder(
+              future: PasswordDatabase.instance.getAllItems(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<PasswordItem>> snapshot) {
+                if (snapshot.hasData) {
+                  List<PasswordItem> passwordItems = snapshot.data!;
+                  return passwordItems.isEmpty
+                      ? const Center(
+                          child: Text("No hay contraseñas guardadas"))
+                      : ListView.builder(
+                          itemCount: passwordItems.length,
+                          itemBuilder: (context, index) {
+                            return ItemPassword(
+                              id: passwordItems[index].id!,
+                              data: passwordItems[index],
+                            );
+                          },
+                        );
+                }
+
+                if (snapshot.hasError) {
+                  return const Text('Error');
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              });
+        })),
       ),
     );
   }
