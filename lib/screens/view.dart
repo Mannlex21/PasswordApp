@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:password_manager/models/password_item.dart';
-import 'package:password_manager/screens/addPassword.dart';
+import 'package:password_manager/models/password_model.dart';
+import 'package:password_manager/screens/add_password.dart';
 
 class ViewPage extends StatefulWidget {
-  final PasswordItem data;
+  final PasswordModel data;
   const ViewPage({super.key, required this.data});
 
   @override

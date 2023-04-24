@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:password_manager/models/password_item.dart';
+import '../models/password_model.dart';
 import 'package:password_manager/providers/notifier.dart';
 import 'package:password_manager/screens/passwords.dart';
 import 'package:password_manager/services/database.dart';
@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 class AddPasswordPage extends StatefulWidget {
-  final PasswordItem? data;
+  final PasswordModel? data;
   const AddPasswordPage({super.key, this.data});
 
   @override
@@ -180,7 +180,7 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
       final encrypter = encrypt.Encrypter(encrypt.AES(key));
       final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
       // final encrypt = Crypt.sha256(passwordController.text);
-      final newRegister = PasswordItem(
+      final newRegister = PasswordModel(
           name: nameController.text,
           password: encrypted.base64,
           description: descriptionController.text,
@@ -209,7 +209,7 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
       final iv = encrypt.IV.fromLength(16);
       final encrypter = encrypt.Encrypter(encrypt.AES(key));
       final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
-      final editRegister = PasswordItem(
+      final editRegister = PasswordModel(
           id: idPasswordItem,
           name: nameController.text,
           password: encrypted.base64,

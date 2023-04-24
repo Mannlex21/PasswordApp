@@ -1,4 +1,4 @@
-import 'package:password_manager/models/password_item.dart';
+import 'package:password_manager/models/password_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -37,18 +37,18 @@ class PasswordDatabase {
     ''');
   }
 
-  Future<void> insert(PasswordItem item) async {
+  Future<void> insert(PasswordModel item) async {
     final db = await instance.database;
     await db.insert(tablePasswordItems, item.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<PasswordItem>> getAllItems() async {
+  Future<List<PasswordModel>> getAllItems() async {
     final db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query(tablePasswordItems);
 
     return List.generate(maps.length, (i) {
-      return PasswordItem(
+      return PasswordModel(
           id: maps[i]['id'],
           name: maps[i]['name'],
           password: maps[i]['password'],
@@ -62,7 +62,7 @@ class PasswordDatabase {
     db.delete(tablePasswordItems, where: "id = ?", whereArgs: [id]);
   }
 
-  Future<void> update(PasswordItem item) async {
+  Future<void> update(PasswordModel item) async {
     final db = await instance.database;
     await db.update(tablePasswordItems, item.toMap(),
         where: "id = ?",
