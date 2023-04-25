@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:password_manager/models/password_model.dart';
 import 'package:password_manager/screens/add_password.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:password_manager/services/local_auth_service.dart';
 
 class ItemPassword extends StatefulWidget {
   final PasswordModel data;
@@ -31,7 +32,16 @@ class _ItemPasswordState extends State<ItemPassword> {
           final decrypted = encrypter.decrypt(
               encrypt.Encrypted.fromBase64(widget.data.password),
               iv: iv);
-          await Clipboard.setData(ClipboardData(text: decrypted));
+          final authenticate = await LocalAuth.authenticate();
+          if (authenticate) {
+            await Clipboard.setData(ClipboardData(text: decrypted));
+          } else {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('No se ha copiado la contraseña'),
+              duration: Duration(seconds: 1),
+            ));
+          }
         },
         child: Card(
           child: Padding(

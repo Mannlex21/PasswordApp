@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:password_manager/models/password_model.dart';
 import 'package:password_manager/providers/notifier.dart';
 import 'package:password_manager/screens/add_password.dart';
 import 'package:password_manager/services/database.dart';
+import 'package:password_manager/services/local_auth_service.dart';
 import 'package:password_manager/widgets/item_password.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_screen_lock/flutter_screen_lock.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -32,7 +35,7 @@ class _PasswordPageState extends State<PasswordPage> {
                     MaterialPageRoute(
                         builder: (context) => const AddPasswordPage()));
               },
-            ),
+            )
           ],
         ),
         body: Center(

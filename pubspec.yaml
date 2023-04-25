@@ -13,6 +13,8 @@ dependencies:
   firebase_core: ^2.7.1
   flutter:
     sdk: flutter
+  flutter_screen_lock: ^9.0.1
+  local_auth: ^2.1.6
   provider: ^6.0.5
   sqflite: ^2.2.7
 
