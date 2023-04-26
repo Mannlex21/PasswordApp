@@ -35,6 +35,11 @@ class _ItemPasswordState extends State<ItemPassword> {
           final authenticate = await LocalAuth.authenticate();
           if (authenticate) {
             await Clipboard.setData(ClipboardData(text: decrypted));
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Se ha copiado la contraseña'),
+              duration: Duration(seconds: 1),
+            ));
           } else {
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
