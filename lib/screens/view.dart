@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:password_manager/models/password_model.dart';
-import 'package:password_manager/screens/add_password.dart';
 
 class ViewPage extends StatefulWidget {
-  final PasswordModel data;
-  const ViewPage({super.key, required this.data});
+  // final PasswordModel data;
+  // , required this.data
+  const ViewPage({super.key});
 
   @override
   State<ViewPage> createState() => _ViewPageState();
@@ -14,20 +12,6 @@ class ViewPage extends StatefulWidget {
 class _ViewPageState extends State<ViewPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const AddPasswordPage()));
-          },
-        ),
-        title: const Text('Details'),
-      ),
-      body: const Center(child: Text('View')),
-    );
+    return const Center(child: Text('View'));
   }
 }

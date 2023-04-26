@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:password_manager/utilities/crypt.dart';
 import '../models/password_model.dart';
-import 'package:password_manager/providers/notifier.dart';
-import 'package:password_manager/screens/passwords.dart';
 import 'package:password_manager/services/database.dart';
-import 'package:provider/provider.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 class AddPasswordPage extends StatefulWidget {
@@ -106,13 +104,11 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
                             labelText: 'Contraseña',
                             suffixIcon: IconButton(
                               onPressed: () {
-                                // Update the state i.e. toogle the state of passwordVisible variable
                                 innerSetState(() {
                                   passwordVisible = !passwordVisible;
                                 });
                               },
                               icon: Icon(
-                                // Based on passwordVisible state choose the icon
                                 passwordVisible
                                     ? Icons.visibility
                                     : Icons.visibility_off,
@@ -175,11 +171,7 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
 
   void addItem() async {
     if (_formKey.currentState!.validate()) {
-      final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
-      final iv = encrypt.IV.fromLength(16);
-      final encrypter = encrypt.Encrypter(encrypt.AES(key));
-      final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
-      // final encrypt = Crypt.sha256(passwordController.text);
+      final encrypted = Crypt.encryptString(passwordController.text);
       final newRegister = PasswordModel(
           name: nameController.text,
           password: encrypted.base64,
@@ -192,23 +184,14 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
         duration: Duration(seconds: 1),
       ));
       Future.delayed(const Duration(seconds: 1), () async {
-        Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ChangeNotifierProvider(
-                        create: (context) => PasswordNotifier(),
-                        child: const PasswordPage())))
-            .then((value) => setState(() {}));
+        Navigator.pop(context);
       });
     }
   }
 
   void editItem() async {
     if (_formKey.currentState!.validate()) {
-      final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
-      final iv = encrypt.IV.fromLength(16);
-      final encrypter = encrypt.Encrypter(encrypt.AES(key));
-      final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
+      final encrypted = Crypt.encryptString(passwordController.text);
       final editRegister = PasswordModel(
           id: idPasswordItem,
           name: nameController.text,
@@ -223,13 +206,7 @@ class _AddPasswordPageState extends State<AddPasswordPage> {
         duration: Duration(seconds: 1),
       ));
       Future.delayed(const Duration(seconds: 1), () async {
-        Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ChangeNotifierProvider(
-                        create: (context) => PasswordNotifier(),
-                        child: const PasswordPage())))
-            .then((value) => setState(() {}));
+        Navigator.pop(context);
       });
     }
   }

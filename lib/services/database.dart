@@ -46,7 +46,6 @@ class PasswordDatabase {
   Future<List<PasswordModel>> getAllItems() async {
     final db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query(tablePasswordItems);
-
     return List.generate(maps.length, (i) {
       return PasswordModel(
           id: maps[i]['id'],
