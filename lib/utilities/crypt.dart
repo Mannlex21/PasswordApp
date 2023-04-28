@@ -1,7 +1,8 @@
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:encrypt/encrypt.dart';
 
 class Crypt {
-  static dynamic encryptString(String value) {
+  static Encrypted encryptString(String value) {
     final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
     final iv = encrypt.IV.fromLength(16);
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
@@ -10,7 +11,7 @@ class Crypt {
     return encrypted;
   }
 
-  static dynamic decryptedString(String value) {
+  static String decryptedString(String value) {
     final key = encrypt.Key.fromUtf8('%C*F-JaNdRgUkXp2s5v8y/A?D(G+KbPe');
     final iv = encrypt.IV.fromLength(16);
     final encrypter = encrypt.Encrypter(encrypt.AES(key));

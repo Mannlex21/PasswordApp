@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:password_manager/models/password_model.dart';
-import 'package:password_manager/screens/add_password.dart';
+import 'package:password_manager/screens/form_password.dart';
 import 'package:password_manager/services/local_auth_service.dart';
 import 'package:password_manager/utilities/crypt.dart';
 import 'package:password_manager/utilities/url.dart';
@@ -26,10 +28,9 @@ class _ItemPasswordState extends State<ItemPassword> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {
-        Navigator.of(context)
-            .push(MaterialPageRoute(
-                builder: (context) => AddPasswordPage(data: widget.data)))
-            .then((value) => widget.callback())
+        Navigator.of(context).pushNamed('/addPassword', arguments: {
+          'data': widget.data.toJson()
+        }).then((value) => widget.callback())
       },
       child: GestureDetector(
         onLongPress: () async {

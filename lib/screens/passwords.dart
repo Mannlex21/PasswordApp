@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:password_manager/models/password_model.dart';
-import 'package:password_manager/screens/add_password.dart';
+import 'package:password_manager/screens/form_password.dart';
 import 'package:password_manager/services/database.dart';
 import 'package:password_manager/widgets/item_password.dart';
 
@@ -29,11 +29,13 @@ class _PasswordPageState extends State<PasswordPage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddPasswordPage()))
-                  .then((value) => _actualizar());
+              Navigator.of(context).pushNamed('/addPassword',
+                  arguments: {'data': null}).then((value) => _actualizar());
+              // Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //             builder: (context) => const AddPasswordPage()))
+              //     .then((value) => _actualizar());
             },
           )
         ],
